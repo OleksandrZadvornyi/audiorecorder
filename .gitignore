@@ -1,0 +1,65 @@
+# Qt-specific
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*build-*
+*-build-*
+*.qm
+.qmake.stash
+
+# Qt Creator specific
+CMakeLists.txt.user*
+
+# Build directories
+build/
+debug/
+release/
+bin/
+obj/
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# OS-specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE-specific (beyond Qt Creator)
+.idea/
+.vscode/
+*.swp
+*.swo
