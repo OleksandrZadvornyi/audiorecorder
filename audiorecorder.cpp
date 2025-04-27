@@ -2,6 +2,7 @@
 #include "audiolevel.h"
 #include "ui_audiorecorder.h"
 #include "stoppedstate.h"
+#include "recordingfacade.h"
 
 #include <QAudioBuffer>
 #include <QAudioDevice>
@@ -47,6 +48,11 @@ AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
     init();
 }
 
+AudioRecorder::~AudioRecorder()
+{
+    delete ui;
+}
+
 void AudioRecorder::init()
 {
 #if QT_CONFIG(permissions)
@@ -63,14 +69,16 @@ void AudioRecorder::init()
     }
 #endif
 
-    m_audioRecorder = new QMediaRecorder(this);
-    m_captureSession.setRecorder(m_audioRecorder);
-    m_captureSession.setAudioInput(new QAudioInput(this));
-    // ### replace with a monitoring output once we have it.
-    // m_probe = new QAudioProbe(this);
-    // connect(m_probe, &QAudioProbe::audioBufferProbed,
-    //         this, &AudioRecorder::processBuffer);
-    // m_probe->setSource(m_audioRecorder);
+    // Create the RecordingFacade object
+    m_recordingFacade = new RecordingFacade(this);
+
+    // Connect signals from facade to our slots
+    connect(m_recordingFacade, &RecordingFacade::durationChanged,
+            this, &AudioRecorder::updateProgress);
+    connect(m_recordingFacade, &RecordingFacade::stateChanged,
+            this, &AudioRecorder::onStateChanged);
+    connect(m_recordingFacade, &RecordingFacade::errorOccurred,
+            this, &AudioRecorder::displayErrorMessage);
 
     // audio devices
     m_mediaDevices = new QMediaDevices(this);
@@ -90,34 +98,34 @@ void AudioRecorder::init()
         48000, 64000, 88200, 96000, 128000, 176400, 192000,
     };
 
-    QAudioDevice device = m_captureSession.audioInput()->device();
-    int minSamplingRate = device.minimumSampleRate();
-    int maxSamplingRate = device.maximumSampleRate();
+    QAudioDevice device;
+    if (m_recordingFacade->recorder()) {
+        device = m_recordingFacade->captureSession()->audioInput()->device();
+        int minSamplingRate = device.minimumSampleRate();
+        int maxSamplingRate = device.maximumSampleRate();
 
-    for (int rate : allSamplingRates) {
-        if (rate < minSamplingRate || rate > maxSamplingRate)
-            continue;
-        ui->sampleRateBox->addItem(QString::number(rate), rate);
+        for (int rate : allSamplingRates) {
+            if (rate < minSamplingRate || rate > maxSamplingRate)
+                continue;
+            ui->sampleRateBox->addItem(QString::number(rate), rate);
+        }
+        int preferredRate = device.preferredFormat().sampleRate();
+        if (preferredRate > 0) {
+            int index = ui->sampleRateBox->findData(device.preferredFormat().sampleRate());
+            ui->sampleRateBox->setCurrentIndex(index);
+        }
     }
-    int preferredRate = device.preferredFormat().sampleRate();
-    if (preferredRate > 0) {
-        int index = ui->sampleRateBox->findData(device.preferredFormat().sampleRate());
-        ui->sampleRateBox->setCurrentIndex(index);
-    }
+}
 
-    connect(m_audioRecorder, &QMediaRecorder::durationChanged, this,
-            &AudioRecorder::updateProgress);
-    connect(m_audioRecorder, &QMediaRecorder::recorderStateChanged, this,
-            &AudioRecorder::onStateChanged);
-    connect(m_audioRecorder, &QMediaRecorder::errorChanged, this,
-            &AudioRecorder::displayErrorMessage);
-    connect(m_audioRecorder, &QMediaRecorder::mediaFormatChanged, this,
-            &AudioRecorder::onMediaFormatChanged);
+QMediaRecorder* AudioRecorder::getMediaRecorder()
+{
+    // Return the facade's recorder
+    return m_recordingFacade->recorder();
 }
 
 void AudioRecorder::updateProgress(qint64 duration)
 {
-    if (m_audioRecorder->error() != QMediaRecorder::NoError || duration < 2000)
+    if (m_recordingFacade->recorder()->error() != QMediaRecorder::NoError || duration < 2000)
         return;
 
     ui->statusbar->showMessage(tr("Recorded %1 sec").arg(duration / 1000));
@@ -149,18 +157,16 @@ void AudioRecorder::togglePause()
 
 void AudioRecorder::initializeRecording()
 {
-    m_captureSession.audioInput()->setDevice(
-        boxValue(ui->audioDeviceBox).value<QAudioDevice>());
-
-    m_audioRecorder->setMediaFormat(selectedMediaFormat());
-    m_audioRecorder->setAudioSampleRate(boxValue(ui->sampleRateBox).toInt());
-    m_audioRecorder->setAudioBitRate(boxValue(ui->bitrateBox).toInt());
-    m_audioRecorder->setAudioChannelCount(boxValue(ui->channelsBox).toInt());
-    m_audioRecorder->setQuality(QMediaRecorder::Quality(ui->qualitySlider->value()));
-    m_audioRecorder->setEncodingMode(
-        ui->constantQualityRadioButton->isChecked()
-        ? QMediaRecorder::ConstantQualityEncoding
-        : QMediaRecorder::ConstantBitRateEncoding
+    // Use facade to start recording with all parameters
+    m_recordingFacade->startRecording(
+        boxValue(ui->audioDeviceBox).value<QAudioDevice>(),
+        boxValue(ui->sampleRateBox).toInt(),
+        boxValue(ui->bitrateBox).toInt(),
+        boxValue(ui->channelsBox).toInt(),
+        ui->qualitySlider->value(),
+        ui->constantQualityRadioButton->isChecked(),
+        selectedMediaFormat(),
+        m_outputLocationSet ? m_recordingFacade->recorder()->outputLocation() : QUrl()
     );
 }
 
@@ -173,18 +179,18 @@ void AudioRecorder::setOutputLocation()
 #else
     QString fileName = QFileDialog::getSaveFileName();
 #endif
-    m_audioRecorder->setOutputLocation(QUrl::fromLocalFile(fileName));
+    m_recordingFacade->recorder()->setOutputLocation(QUrl::fromLocalFile(fileName));
     m_outputLocationSet = true;
 }
 
 void AudioRecorder::displayErrorMessage()
 {
-    ui->statusbar->showMessage(m_audioRecorder->errorString());
+    ui->statusbar->showMessage(m_recordingFacade->errorString());
 }
 
 void AudioRecorder::onMediaFormatChanged()
 {
-    QMediaFormat format = m_audioRecorder->mediaFormat();
+    QMediaFormat format = m_recordingFacade->recorder()->mediaFormat();
 
     int formatIndex = ui->containerBox->findData(format.fileFormat());
     if (formatIndex != -1)

@@ -42,6 +42,7 @@ public:
 
     // Getters
     QMediaRecorder* recorder() const;
+    QMediaCaptureSession* captureSession() const;
     QString errorString() const;
     qint64 duration() const;
 

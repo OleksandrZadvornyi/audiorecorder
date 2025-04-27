@@ -94,6 +94,11 @@ QMediaRecorder* RecordingFacade::recorder() const
     return m_recorder;
 }
 
+QMediaCaptureSession* RecordingFacade::captureSession() const
+{
+    return m_captureSession;
+}
+
 QString RecordingFacade::errorString() const
 {
     return m_recorder->errorString();

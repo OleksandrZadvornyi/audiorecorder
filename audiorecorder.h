@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 
 class State;
 class AudioLevel;
+class RecordingFacade;
 
 class AudioRecorder : public QMainWindow
 {
@@ -23,6 +24,7 @@ class AudioRecorder : public QMainWindow
 
 public:
     AudioRecorder();
+    ~AudioRecorder();
 
     void changeState(State* state)
     {
@@ -30,7 +32,7 @@ public:
     }
 
     Ui::AudioRecorder* getUI() { return ui; }
-    QMediaRecorder* getMediaRecorder() { return m_audioRecorder; }
+    QMediaRecorder* getMediaRecorder();
     void initializeRecording();
 
     void clearAudioLevels();
@@ -57,8 +59,8 @@ private:
 
     Ui::AudioRecorder *ui = nullptr;
 
-    QMediaCaptureSession m_captureSession;
-    QMediaRecorder *m_audioRecorder = nullptr;
+    // Using RecordingFacade instead of direct access to components
+    RecordingFacade *m_recordingFacade = nullptr;
     QMediaDevices *m_mediaDevices = nullptr;
 
     QList<AudioLevel *> m_audioLevels;
