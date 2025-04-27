@@ -9,6 +9,7 @@ HEADERS = \
     audiorecorder.h \
     audiolevel.h \
     pausedstate.h \
+    recordingfacade.h \
     recordingstate.h \
     state.h \
     stoppedstate.h
@@ -18,6 +19,7 @@ SOURCES = \
     audiorecorder.cpp \
     audiolevel.cpp \
     pausedstate.cpp \
+    recordingfacade.cpp \
     recordingstate.cpp \
     stoppedstate.cpp
 
