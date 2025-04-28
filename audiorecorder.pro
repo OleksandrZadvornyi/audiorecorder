@@ -1,9 +1,11 @@
 TEMPLATE = app
 TARGET = audiorecorder
 
-QT += multimedia
+QT += core gui multimedia widgets
 
-win32:INCLUDEPATH += $$PWD
+CONFIG += c++17
+
+INCLUDEPATH += $$PWD/src
 
 SOURCES += \
     src/main.cpp \
@@ -35,8 +37,6 @@ HEADERS += \
 FORMS += \
     ui/audiorecorder.ui
 
-target.path = $$[QT_INSTALL_EXAMPLES]/multimedia/audiorecorder
-INSTALLS += target
-
-QT+=widgets
-#include(../shared/shared.pri)
+macx {
+    QMAKE_INFO_PLIST = Info.plist.in
+}
