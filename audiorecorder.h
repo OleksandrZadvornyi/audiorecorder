@@ -18,6 +18,9 @@ class State;
 class AudioLevel;
 class RecordingFacade;
 class EncodingStrategy;
+class StatusObserver;
+class RecordingTimeDisplay;
+class LogFileObserver;
 
 class AudioRecorder : public QMainWindow
 {
@@ -72,6 +75,11 @@ private:
 
     State* state_ = nullptr;
     EncodingStrategy* createEncodingStrategy() const;
+
+    // Observer pattern components
+    StatusObserver* m_statusObserver = nullptr;
+    RecordingTimeDisplay* m_timeDisplay = nullptr;
+    LogFileObserver* m_logObserver = nullptr;
 };
 
 #endif // AUDIORECORDER_H

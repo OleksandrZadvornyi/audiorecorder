@@ -9,19 +9,27 @@ HEADERS = \
     audiorecorder.h \
     audiolevel.h \
     encodingstrategy.h \
+    logfileobserver.h \
+    observer.h \
     pausedstate.h \
     recordingfacade.h \
     recordingstate.h \
+    recordingtimedisplay.h \
     state.h \
-    stoppedstate.h
+    statusobserver.h \
+    stoppedstate.h \
+    subject.h
 
 SOURCES = \
+    logfileobserver.cpp \
     main.cpp \
     audiorecorder.cpp \
     audiolevel.cpp \
     pausedstate.cpp \
     recordingfacade.cpp \
     recordingstate.cpp \
+    recordingtimedisplay.cpp \
+    statusobserver.cpp \
     stoppedstate.cpp
 
 FORMS += audiorecorder.ui

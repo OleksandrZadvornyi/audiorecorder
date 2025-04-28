@@ -6,6 +6,8 @@
 #include <QMediaFormat>
 #include <QString>
 #include <QUrl>
+#include <QMediaRecorder>
+#include "subject.h"
 
 class QMediaRecorder;
 class QMediaCaptureSession;
@@ -13,12 +15,21 @@ class QAudioInput;
 class EncodingStrategy;
 
 // RecordingFacade provides a simplified interface to the complex
-// audio recording subsystem
-class RecordingFacade : public QObject
+// audio recording subsystem and now acts as a Subject for Observers
+class RecordingFacade : public QObject, public Subject
 {
     Q_OBJECT
 
 public:
+    // Recording states that observers might be interested in
+    enum RecordingStatus {
+        Idle,
+        Recording,
+        Paused,
+        Stopped,
+        Error
+    };
+
     explicit RecordingFacade(QObject *parent = nullptr);
     ~RecordingFacade();
 
@@ -41,6 +52,7 @@ public:
     bool isRecording() const;
     bool isPaused() const;
     bool isStopped() const;
+    RecordingStatus getStatus() const { return m_status; }
 
     // Getters
     QMediaRecorder* recorder() const;
@@ -53,10 +65,15 @@ signals:
     void stateChanged();
     void errorOccurred();
 
+private slots:
+    void handleStateChange();
+    void handleError();
+
 private:
     QMediaRecorder *m_recorder;
     QMediaCaptureSession *m_captureSession;
     QAudioInput *m_audioInput;
+    RecordingStatus m_status;
 };
 
 #endif // RECORDINGFACADE_H

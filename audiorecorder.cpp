@@ -4,6 +4,9 @@
 #include "stoppedstate.h"
 #include "recordingfacade.h"
 #include "encodingstrategy.h"
+#include "statusobserver.h"
+#include "recordingtimedisplay.h"
+#include "logfileobserver.h"
 
 #include <QAudioBuffer>
 #include <QAudioDevice>
@@ -16,6 +19,7 @@
 #include <QMediaRecorder>
 #include <QMimeType>
 #include <QStandardPaths>
+#include <QToolBar>
 
 #if QT_CONFIG(permissions)
 #include <QPermission>
@@ -52,7 +56,10 @@ AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
 
 AudioRecorder::~AudioRecorder()
 {
-    delete m_encodingStrategy; // Clean up strategy
+    delete m_statusObserver;
+    delete m_timeDisplay;
+    delete m_logObserver;
+    delete m_encodingStrategy;
     delete ui;
 }
 
@@ -93,6 +100,22 @@ void AudioRecorder::init()
 
     // Create the RecordingFacade object
     m_recordingFacade = new RecordingFacade(this);
+
+    // Create observers and attach them to the facade
+    m_statusObserver = new StatusObserver(m_recordingFacade, ui->statusbar);
+
+    // Create a label for displaying recording time
+    QLabel* timeLabel = new QLabel("00:00:00", this);
+    m_timeDisplay = new RecordingTimeDisplay(m_recordingFacade, timeLabel);
+
+    QToolBar* toolBar = new QToolBar(this);
+    this->addToolBar(toolBar);
+    toolBar->addWidget(timeLabel);
+
+    // Create log file observer
+    QString logPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+                      + "/recording_log.txt";
+    m_logObserver = new LogFileObserver(m_recordingFacade, logPath);
 
     // Connect signals from facade to our slots
     connect(m_recordingFacade, &RecordingFacade::durationChanged,

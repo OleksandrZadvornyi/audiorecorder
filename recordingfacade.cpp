@@ -30,6 +30,37 @@ RecordingFacade::~RecordingFacade()
     // QObject parent-child relationship will handle cleanup
 }
 
+void RecordingFacade::handleStateChange()
+{
+    // Update status based on recorder state
+    switch (m_recorder->recorderState()) {
+    case QMediaRecorder::RecordingState:
+        m_status = Recording;
+        break;
+    case QMediaRecorder::PausedState:
+        m_status = Paused;
+        break;
+    case QMediaRecorder::StoppedState:
+        m_status = Stopped;
+        break;
+    }
+
+    // Notify observers about the state change
+    notify();
+
+    // Emit the state changed signal for Qt connections
+    emit stateChanged();
+}
+
+void RecordingFacade::handleError()
+{
+    if (m_recorder->error() != QMediaRecorder::NoError) {
+        m_status = Error;
+        notify();
+        emit errorOccurred();
+    }
+}
+
 void RecordingFacade::startRecording(
     const QAudioDevice &device,
     int sampleRate,
