@@ -1,5 +1,5 @@
 #include "recordingtimedisplay.h"
-#include "recordingfacade.h"
+#include "../Facade/recordingfacade.h"
 #include <QTimer>
 
 RecordingTimeDisplay::RecordingTimeDisplay(RecordingFacade* subject, QLabel* label)

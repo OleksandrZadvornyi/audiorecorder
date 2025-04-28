@@ -1,4 +1,4 @@
-#include "audiorecorder.h"
+#include "./Audio/audiorecorder.h"
 
 #include <QApplication>
 

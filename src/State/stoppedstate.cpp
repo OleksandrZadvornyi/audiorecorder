@@ -1,5 +1,5 @@
 #include "stoppedstate.h"
-#include "audiorecorder.h"
+#include "../Audio/audiorecorder.h"
 #include "recordingstate.h"
 #include "pausedstate.h"
 #include "ui_audiorecorder.h"

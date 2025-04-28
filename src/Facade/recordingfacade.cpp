@@ -2,7 +2,7 @@
 #include <QMediaRecorder>
 #include <QMediaCaptureSession>
 #include <QAudioInput>
-#include "encodingstrategy.h"
+#include "../Audio/encodingstrategy.h"
 
 RecordingFacade::RecordingFacade(QObject *parent)
     : QObject(parent)

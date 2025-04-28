@@ -1,5 +1,5 @@
 #include "statusobserver.h"
-#include "recordingfacade.h"
+#include "../Facade/recordingfacade.h"
 
 StatusObserver::StatusObserver(RecordingFacade* subject, QStatusBar* statusBar)
     : m_subject(subject), m_statusBar(statusBar)

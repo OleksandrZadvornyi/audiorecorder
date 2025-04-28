@@ -1,12 +1,12 @@
 #include "audiorecorder.h"
 #include "audiolevel.h"
 #include "ui_audiorecorder.h"
-#include "stoppedstate.h"
-#include "recordingfacade.h"
+#include "../State/stoppedstate.h"
+#include "../Facade/recordingfacade.h"
 #include "encodingstrategy.h"
-#include "statusobserver.h"
-#include "recordingtimedisplay.h"
-#include "logfileobserver.h"
+#include "../Observer/statusobserver.h"
+#include "../Observer/recordingtimedisplay.h"
+#include "../Observer/logfileobserver.h"
 
 #include <QAudioBuffer>
 #include <QAudioDevice>

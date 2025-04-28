@@ -7,7 +7,7 @@
 #include <QString>
 #include <QUrl>
 #include <QMediaRecorder>
-#include "subject.h"
+#include "../Observer/subject.h"
 
 class QMediaRecorder;
 class QMediaCaptureSession;

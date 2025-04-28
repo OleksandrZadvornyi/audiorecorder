@@ -7,8 +7,10 @@
 class RecordingFacade;
 
 // Observer that updates a label with the current recording duration
-class RecordingTimeDisplay : public Observer, QObject
+class RecordingTimeDisplay : public QObject, Observer
 {
+    Q_OBJECT
+
 public:
     RecordingTimeDisplay(RecordingFacade* subject, QLabel* label);
     ~RecordingTimeDisplay();
@@ -20,7 +22,7 @@ private:
     QLabel* m_timeLabel;
     QTimer* m_timer;
 
-public slots:
+private slots:
     void updateDisplay();
 };
 

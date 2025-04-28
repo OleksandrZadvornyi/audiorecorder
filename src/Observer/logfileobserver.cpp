@@ -1,5 +1,5 @@
 #include "logfileobserver.h"
-#include "recordingfacade.h"
+#include "../Facade/recordingfacade.h"
 #include <QDateTime>
 
 LogFileObserver::LogFileObserver(RecordingFacade* subject, const QString& logFilePath)
