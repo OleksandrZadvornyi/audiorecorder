@@ -3,6 +3,7 @@
 #include "ui_audiorecorder.h"
 #include "stoppedstate.h"
 #include "recordingfacade.h"
+#include "encodingstrategy.h"
 
 #include <QAudioBuffer>
 #include <QAudioDevice>
@@ -26,6 +27,7 @@ AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
 {
     ui->setupUi(this);
     changeState(new StoppedState(this));
+    m_encodingStrategy = nullptr; // Initialize the strategy pointer
 
     // channels
     ui->channelsBox->addItem(tr("Default"), QVariant(-1));
@@ -50,7 +52,27 @@ AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
 
 AudioRecorder::~AudioRecorder()
 {
+    delete m_encodingStrategy; // Clean up strategy
     delete ui;
+}
+
+static QVariant boxValue(const QComboBox *box)
+{
+    int idx = box->currentIndex();
+    if (idx == -1)
+        return QVariant();
+
+    return box->itemData(idx);
+}
+
+// Method to create the appropriate strategy
+EncodingStrategy* AudioRecorder::createEncodingStrategy() const
+{
+    if (ui->constantQualityRadioButton->isChecked()) {
+        return new ConstantQualityStrategy(ui->qualitySlider->value());
+    } else {
+        return new ConstantBitRateStrategy(boxValue(ui->bitrateBox).toInt());
+    }
 }
 
 void AudioRecorder::init()
@@ -136,15 +158,6 @@ void AudioRecorder::onStateChanged()
     this->state_->onStateChanged();
 }
 
-static QVariant boxValue(const QComboBox *box)
-{
-    int idx = box->currentIndex();
-    if (idx == -1)
-        return QVariant();
-
-    return box->itemData(idx);
-}
-
 void AudioRecorder::toggleRecord()
 {
     this->state_->toggleRecord();
@@ -157,7 +170,11 @@ void AudioRecorder::togglePause()
 
 void AudioRecorder::initializeRecording()
 {
-    // Use facade to start recording with all parameters
+    // Create a new encoding strategy
+    delete m_encodingStrategy;
+    m_encodingStrategy = createEncodingStrategy();
+
+    // Start recording using the facade with our strategy
     m_recordingFacade->startRecording(
         boxValue(ui->audioDeviceBox).value<QAudioDevice>(),
         boxValue(ui->sampleRateBox).toInt(),
@@ -166,7 +183,8 @@ void AudioRecorder::initializeRecording()
         ui->qualitySlider->value(),
         ui->constantQualityRadioButton->isChecked(),
         selectedMediaFormat(),
-        m_outputLocationSet ? m_recordingFacade->recorder()->outputLocation() : QUrl()
+        m_outputLocationSet ? m_recordingFacade->recorder()->outputLocation() : QUrl(),
+        m_encodingStrategy // Pass the strategy to the facade
     );
 }
 

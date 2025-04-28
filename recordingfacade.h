@@ -10,6 +10,7 @@
 class QMediaRecorder;
 class QMediaCaptureSession;
 class QAudioInput;
+class EncodingStrategy;
 
 // RecordingFacade provides a simplified interface to the complex
 // audio recording subsystem
@@ -29,7 +30,8 @@ public:
                         int quality,
                         bool constantQuality,
                         const QMediaFormat &format,
-                        const QUrl &outputLocation = QUrl());
+                        const QUrl &outputLocation = QUrl(),
+                        const EncodingStrategy *strategy = nullptr);
 
     void pauseRecording();
     void resumeRecording();

@@ -2,6 +2,7 @@
 #include <QMediaRecorder>
 #include <QMediaCaptureSession>
 #include <QAudioInput>
+#include "encodingstrategy.h"
 
 RecordingFacade::RecordingFacade(QObject *parent)
     : QObject(parent)
@@ -37,18 +38,25 @@ void RecordingFacade::startRecording(
     int quality,
     bool constantQuality,
     const QMediaFormat &format,
-    const QUrl &outputLocation)
+    const QUrl &outputLocation,
+    const EncodingStrategy *strategy)
 {
     // Setup recording parameters
     m_audioInput->setDevice(device);
     m_recorder->setMediaFormat(format);
     m_recorder->setAudioSampleRate(sampleRate);
-    m_recorder->setAudioBitRate(bitRate);
     m_recorder->setAudioChannelCount(channelCount);
-    m_recorder->setQuality(QMediaRecorder::Quality(quality));
-    m_recorder->setEncodingMode(
-        constantQuality ? QMediaRecorder::ConstantQualityEncoding
-                        : QMediaRecorder::ConstantBitRateEncoding);
+
+    // Apply strategy if provided, otherwise use the default approach
+    if (strategy) {
+        strategy->applyEncodingSettings(m_recorder);
+    } else {
+        m_recorder->setAudioBitRate(bitRate);
+        m_recorder->setQuality(QMediaRecorder::Quality(quality));
+        m_recorder->setEncodingMode(
+            constantQuality ? QMediaRecorder::ConstantQualityEncoding
+                            : QMediaRecorder::ConstantBitRateEncoding);
+    }
 
     // Set output location if provided
     if (!outputLocation.isEmpty()) {

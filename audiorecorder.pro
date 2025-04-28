@@ -8,6 +8,7 @@ win32:INCLUDEPATH += $$PWD
 HEADERS = \
     audiorecorder.h \
     audiolevel.h \
+    encodingstrategy.h \
     pausedstate.h \
     recordingfacade.h \
     recordingstate.h \

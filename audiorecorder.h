@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 class State;
 class AudioLevel;
 class RecordingFacade;
+class EncodingStrategy;
 
 class AudioRecorder : public QMainWindow
 {
@@ -55,6 +56,8 @@ private slots:
     void updateFormats();
 
 private:
+    EncodingStrategy* m_encodingStrategy = nullptr;
+
     QMediaFormat selectedMediaFormat() const;
 
     Ui::AudioRecorder *ui = nullptr;
@@ -68,6 +71,7 @@ private:
     bool m_updatingFormats = false;
 
     State* state_ = nullptr;
+    EncodingStrategy* createEncodingStrategy() const;
 };
 
 #endif // AUDIORECORDER_H
