@@ -5,34 +5,35 @@ QT += multimedia
 
 win32:INCLUDEPATH += $$PWD
 
-HEADERS = \
-    audiorecorder.h \
-    audiolevel.h \
-    encodingstrategy.h \
-    logfileobserver.h \
-    observer.h \
-    pausedstate.h \
-    recordingfacade.h \
-    recordingstate.h \
-    recordingtimedisplay.h \
-    state.h \
-    statusobserver.h \
-    stoppedstate.h \
-    subject.h
+SOURCES += \
+    src/main.cpp \
+    src/Audio/audiolevel.cpp \
+    src/Audio/audiorecorder.cpp \
+    src/Observer/logfileobserver.cpp \
+    src/Observer/statusobserver.cpp \
+    src/Observer/recordingtimedisplay.cpp \
+    src/State/pausedstate.cpp \
+    src/State/recordingstate.cpp \
+    src/State/stoppedstate.cpp \
+    src/Facade/recordingfacade.cpp 
 
-SOURCES = \
-    logfileobserver.cpp \
-    main.cpp \
-    audiorecorder.cpp \
-    audiolevel.cpp \
-    pausedstate.cpp \
-    recordingfacade.cpp \
-    recordingstate.cpp \
-    recordingtimedisplay.cpp \
-    statusobserver.cpp \
-    stoppedstate.cpp
+HEADERS += \
+    src/Audio/audiolevel.h \
+    src/Audio/audiorecorder.h \
+    src/Audio/encodingstrategy.h \
+    src/Observer/observer.h \
+    src/Observer/subject.h \
+    src/Observer/logfileobserver.h \
+    src/Observer/statusobserver.h \
+    src/Observer/recordingtimedisplay.h \
+    src/State/state.h \
+    src/State/pausedstate.h \
+    src/State/recordingstate.h \
+    src/State/stoppedstate.h \
+    src/Facade/recordingfacade.h 
 
-FORMS += audiorecorder.ui
+FORMS += \
+    ui/audiorecorder.ui
 
 target.path = $$[QT_INSTALL_EXAMPLES]/multimedia/audiorecorder
 INSTALLS += target
