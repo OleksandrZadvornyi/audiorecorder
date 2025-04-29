@@ -105,12 +105,8 @@ void AudioRecorder::init()
     m_statusObserver = new StatusObserver(m_recordingFacade, ui->statusbar);
 
     // Create a label for displaying recording time
-    QLabel* timeLabel = new QLabel("00:00:00", this);
-    m_timeDisplay = new RecordingTimeDisplay(m_recordingFacade, timeLabel);
-
-    QToolBar* toolBar = new QToolBar(this);
-    this->addToolBar(toolBar);
-    toolBar->addWidget(timeLabel);
+    ui->statusbar->showMessage(tr("Recorder is stopped"));
+    m_timeDisplay = new RecordingTimeDisplay(m_recordingFacade, ui->statusbar);
 
     // Create log file observer
     QString logPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
@@ -119,7 +115,7 @@ void AudioRecorder::init()
 
     // Connect signals from facade to our slots
     connect(m_recordingFacade, &RecordingFacade::durationChanged,
-            this, &AudioRecorder::updateProgress);
+            m_timeDisplay, &RecordingTimeDisplay::updateDisplay);
     connect(m_recordingFacade, &RecordingFacade::stateChanged,
             this, &AudioRecorder::onStateChanged);
     connect(m_recordingFacade, &RecordingFacade::errorOccurred,
@@ -166,14 +162,6 @@ QMediaRecorder* AudioRecorder::getMediaRecorder()
 {
     // Return the facade's recorder
     return m_recordingFacade->recorder();
-}
-
-void AudioRecorder::updateProgress(qint64 duration)
-{
-    if (m_recordingFacade->recorder()->error() != QMediaRecorder::NoError || duration < 2000)
-        return;
-
-    ui->statusbar->showMessage(tr("Recorded %1 sec").arg(duration / 1000));
 }
 
 void AudioRecorder::onStateChanged()

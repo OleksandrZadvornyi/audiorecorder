@@ -51,7 +51,6 @@ private slots:
     void toggleRecord();
 
     void onStateChanged();
-    void updateProgress(qint64 pos);
     void displayErrorMessage();
     void onMediaFormatChanged();
 

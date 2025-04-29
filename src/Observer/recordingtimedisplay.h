@@ -2,7 +2,7 @@
 #define RECORDINGTIMEDISPLAY_H
 
 #include "observer.h"
-#include <QLabel>
+#include <QStatusBar>
 
 class RecordingFacade;
 
@@ -12,17 +12,17 @@ class RecordingTimeDisplay : public QObject, Observer
     Q_OBJECT
 
 public:
-    RecordingTimeDisplay(RecordingFacade* subject, QLabel* label);
+    RecordingTimeDisplay(RecordingFacade* subject, QStatusBar* statusBar);
     ~RecordingTimeDisplay();
 
     void update() override;
 
 private:
     RecordingFacade* m_subject;
-    QLabel* m_timeLabel;
+    QStatusBar* m_statusBar;
     QTimer* m_timer;
 
-private slots:
+public slots:
     void updateDisplay();
 };
 

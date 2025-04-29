@@ -2,8 +2,8 @@
 #include "../Facade/recordingfacade.h"
 #include <QTimer>
 
-RecordingTimeDisplay::RecordingTimeDisplay(RecordingFacade* subject, QLabel* label)
-    : m_subject(subject), m_timeLabel(label)
+RecordingTimeDisplay::RecordingTimeDisplay(RecordingFacade* subject, QStatusBar* statusBar)
+    : m_subject(subject), m_statusBar(statusBar)
 {
     if (m_subject) {
         m_subject->attach(this);
@@ -37,7 +37,7 @@ void RecordingTimeDisplay::update()
         // If stopped or error, clear the display
         if (m_subject->getStatus() == RecordingFacade::Stopped ||
             m_subject->getStatus() == RecordingFacade::Error) {
-            m_timeLabel->setText("00:00:00");
+            m_statusBar->showMessage("Recorder is stopped");
         }
     }
 
@@ -47,7 +47,7 @@ void RecordingTimeDisplay::update()
 
 void RecordingTimeDisplay::updateDisplay()
 {
-    if (!m_subject || !m_timeLabel)
+    if (!m_subject || !m_statusBar)
         return;
 
     qint64 duration = m_subject->duration() / 1000; // Convert to seconds
@@ -55,8 +55,9 @@ void RecordingTimeDisplay::updateDisplay()
     int minutes = (duration % 3600) / 60;
     int seconds = duration % 60;
 
-    m_timeLabel->setText(QString("%1:%2:%3")
-                             .arg(hours, 2, 10, QChar('0'))
-                             .arg(minutes, 2, 10, QChar('0'))
-                             .arg(seconds, 2, 10, QChar('0')));
+    m_statusBar->showMessage(tr("Recording %1:%2:%3")
+                                 .arg(hours, 2, 10, QChar('0'))
+                                 .arg(minutes, 2, 10, QChar('0'))
+                                 .arg(seconds, 2, 10, QChar('0')));
+
 }
