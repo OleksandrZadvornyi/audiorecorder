@@ -5,6 +5,7 @@
 #include <QMediaCaptureSession>
 #include <QMediaRecorder>
 #include <QUrl>
+#include "../Command/commandinvoker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,6 +22,7 @@ class EncodingStrategy;
 class StatusObserver;
 class RecordingTimeDisplay;
 class LogFileObserver;
+class CommandInvoker;
 
 class AudioRecorder : public QMainWindow
 {
@@ -41,6 +43,9 @@ public:
 
     void clearAudioLevels();
 
+    // Get command invoker for outside access
+    CommandInvoker* getCommandInvoker() { return m_commandInvoker; }
+
 public slots:
     void processBuffer(const QAudioBuffer &);
 
@@ -56,6 +61,10 @@ private slots:
 
     void updateDevices();
     void updateFormats();
+
+    // New slots for command history
+    void displayCommandHistory();
+    void onCommandExecuted(const QString& commandName);
 
 private:
     EncodingStrategy* m_encodingStrategy = nullptr;
@@ -79,6 +88,9 @@ private:
     StatusObserver* m_statusObserver = nullptr;
     RecordingTimeDisplay* m_timeDisplay = nullptr;
     LogFileObserver* m_logObserver = nullptr;
+
+    // Command pattern components
+    CommandInvoker* m_commandInvoker = nullptr;
 };
 
 #endif // AUDIORECORDER_H

@@ -7,6 +7,8 @@
 #include "../Observer/statusobserver.h"
 #include "../Observer/recordingtimedisplay.h"
 #include "../Observer/logfileobserver.h"
+#include "../Command/commandinvoker.h"
+#include "../Command/recordercommands.h"
 
 #include <QAudioBuffer>
 #include <QAudioDevice>
@@ -20,6 +22,9 @@
 #include <QMimeType>
 #include <QStandardPaths>
 #include <QToolBar>
+#include <QListWidget>
+#include <QDockWidget>
+#include <memory>
 
 #if QT_CONFIG(permissions)
 #include <QPermission>
@@ -32,6 +37,18 @@ AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
     ui->setupUi(this);
     changeState(new StoppedState(this));
     m_encodingStrategy = nullptr; // Initialize the strategy pointer
+
+    // Create command invoker
+    m_commandInvoker = new CommandInvoker(this);
+    connect(m_commandInvoker, &CommandInvoker::commandExecuted,
+            this, &AudioRecorder::onCommandExecuted);
+
+    // Add Command History dock widget
+    QDockWidget *historyDock = new QDockWidget(tr("Command History"), this);
+    historyDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    QListWidget *historyList = new QListWidget(historyDock);
+    historyDock->setWidget(historyList);
+    addDockWidget(Qt::RightDockWidgetArea, historyDock);
 
     // channels
     ui->channelsBox->addItem(tr("Default"), QVariant(-1));
@@ -60,6 +77,7 @@ AudioRecorder::~AudioRecorder()
     delete m_timeDisplay;
     delete m_logObserver;
     delete m_encodingStrategy;
+    delete m_commandInvoker;
     delete ui;
 }
 
@@ -167,6 +185,7 @@ QMediaRecorder* AudioRecorder::getMediaRecorder()
 void AudioRecorder::onStateChanged()
 {
     this->state_->onStateChanged();
+    displayCommandHistory(); // Update command history display
 }
 
 void AudioRecorder::toggleRecord()
@@ -185,8 +204,9 @@ void AudioRecorder::initializeRecording()
     delete m_encodingStrategy;
     m_encodingStrategy = createEncodingStrategy();
 
-    // Start recording using the facade with our strategy
-    m_recordingFacade->startRecording(
+    // Create and execute the start recording command
+    auto startCommand = std::make_shared<StartRecordingCommand>(
+        m_recordingFacade,
         boxValue(ui->audioDeviceBox).value<QAudioDevice>(),
         boxValue(ui->sampleRateBox).toInt(),
         boxValue(ui->bitrateBox).toInt(),
@@ -195,8 +215,10 @@ void AudioRecorder::initializeRecording()
         ui->constantQualityRadioButton->isChecked(),
         selectedMediaFormat(),
         m_outputLocationSet ? m_recordingFacade->recorder()->outputLocation() : QUrl(),
-        m_encodingStrategy // Pass the strategy to the facade
-    );
+        m_encodingStrategy
+        );
+
+    m_commandInvoker->executeCommand(startCommand);
 }
 
 void AudioRecorder::setOutputLocation()
@@ -309,6 +331,30 @@ QMediaFormat AudioRecorder::selectedMediaFormat() const
     return format;
 }
 
+// New method to display command history
+void AudioRecorder::displayCommandHistory()
+{
+    // Find the history list widget in the dock
+    QDockWidget* dock = findChild<QDockWidget*>();
+    if (dock) {
+        QListWidget* historyList = qobject_cast<QListWidget*>(dock->widget());
+        if (historyList) {
+            historyList->clear();
+            QStringList history = m_commandInvoker->getCommandHistory();
+            for (const QString& cmd : history) {
+                historyList->addItem(cmd);
+            }
+        }
+    }
+}
+
+// New slot to handle command execution
+void AudioRecorder::onCommandExecuted(const QString& commandName)
+{
+    ui->statusbar->showMessage(tr("Command executed: %1").arg(commandName), 2000);
+    displayCommandHistory();
+}
+
 // returns the audio level for each channel
 QList<qreal> getBufferLevels(const QAudioBuffer &buffer)
 {
@@ -354,4 +400,3 @@ void AudioRecorder::processBuffer(const QAudioBuffer &buffer)
     for (int i = 0; i < levels.count(); ++i)
         m_audioLevels.at(i)->setLevel(levels.at(i));
 }
-

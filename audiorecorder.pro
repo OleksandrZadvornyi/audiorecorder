@@ -23,6 +23,8 @@ HEADERS += \
     src/Audio/audiolevel.h \
     src/Audio/audiorecorder.h \
     src/Audio/encodingstrategy.h \
+    src/Command/commandinvoker.h \
+    src/Command/recordercommands.h \
     src/Observer/observer.h \
     src/Observer/subject.h \
     src/Observer/logfileobserver.h \
@@ -32,7 +34,8 @@ HEADERS += \
     src/State/pausedstate.h \
     src/State/recordingstate.h \
     src/State/stoppedstate.h \
-    src/Facade/recordingfacade.h 
+    src/Facade/recordingfacade.h \
+    src/Command/command.h
 
 FORMS += \
     ui/audiorecorder.ui
