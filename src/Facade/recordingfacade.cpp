@@ -113,21 +113,6 @@ void RecordingFacade::stopRecording()
     m_recorder->stop();
 }
 
-bool RecordingFacade::isRecording() const
-{
-    return m_recorder->recorderState() == QMediaRecorder::RecordingState;
-}
-
-bool RecordingFacade::isPaused() const
-{
-    return m_recorder->recorderState() == QMediaRecorder::PausedState;
-}
-
-bool RecordingFacade::isStopped() const
-{
-    return m_recorder->recorderState() == QMediaRecorder::StoppedState;
-}
-
 QMediaRecorder* RecordingFacade::recorder() const
 {
     return m_recorder;

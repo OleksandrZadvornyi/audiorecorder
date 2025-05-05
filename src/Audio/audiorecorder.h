@@ -46,6 +46,9 @@ public:
     // Get command invoker for outside access
     CommandInvoker* getCommandInvoker() { return m_commandInvoker; }
 
+    // Get facade object for outsied access
+    RecordingFacade* getRecordingFacade() { return m_recordingFacade; }
+
 public slots:
     void processBuffer(const QAudioBuffer &);
 
@@ -67,22 +70,25 @@ private slots:
     void onCommandExecuted(const QString& commandName);
 
 private:
-    EncodingStrategy* m_encodingStrategy = nullptr;
-
     QMediaFormat selectedMediaFormat() const;
 
     Ui::AudioRecorder *ui = nullptr;
 
-    // Using RecordingFacade instead of direct access to components
-    RecordingFacade *m_recordingFacade = nullptr;
-    QMediaDevices *m_mediaDevices = nullptr;
-
     QList<AudioLevel *> m_audioLevels;
     bool m_outputLocationSet = false;
     bool m_updatingFormats = false;
+    QMediaDevices *m_mediaDevices = nullptr;
 
-    State* state_ = nullptr;
     EncodingStrategy* createEncodingStrategy() const;
+
+    // Using RecordingFacade instead of direct access to components
+    RecordingFacade *m_recordingFacade = nullptr;
+
+    // State pattern components
+    State* state_ = nullptr;
+
+    // Strategy pattern components
+    EncodingStrategy* m_encodingStrategy = nullptr;
 
     // Observer pattern components
     StatusObserver* m_statusObserver = nullptr;

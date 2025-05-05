@@ -11,30 +11,29 @@ StoppedState::StoppedState(AudioRecorder* context)
 
 void StoppedState::toggleRecord()
 {
+    // Change state to recording
     context->changeState(new RecordingState(context));
-    context->getMediaRecorder()->record();
+
+    // Create and execute the start recording command
     context->initializeRecording();
 }
 
 void StoppedState::togglePause()
 {
-    context->changeState(new PausedState(context));
-    context->getMediaRecorder()->pause();
+    // Do nothing in stopped state
 }
 
 void StoppedState::onStateChanged()
 {
     Ui::AudioRecorder* ui = context->getUI();
-    QString statusMessage;
 
     context->clearAudioLevels();
-    statusMessage = AudioRecorder::tr("Stopped");
     ui->recordButton->setText(AudioRecorder::tr("Record"));
     ui->pauseButton->setText(AudioRecorder::tr("Pause"));
 
-    ui->pauseButton->setEnabled(context->getMediaRecorder()->recorderState() != QMediaRecorder::StoppedState);
+    ui->pauseButton->setEnabled(false);
     if (context->getMediaRecorder()->error() == QMediaRecorder::NoError)
-        ui->statusbar->showMessage(statusMessage);
+        ui->statusbar->showMessage(AudioRecorder::tr("Stopped"));
 }
 
 

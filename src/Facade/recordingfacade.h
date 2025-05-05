@@ -23,7 +23,6 @@ class RecordingFacade : public QObject, public Subject
 public:
     // Recording states that observers might be interested in
     enum RecordingStatus {
-        Idle,
         Recording,
         Paused,
         Stopped,
@@ -48,17 +47,12 @@ public:
     void resumeRecording();
     void stopRecording();
 
-    // Status methods
-    bool isRecording() const;
-    bool isPaused() const;
-    bool isStopped() const;
-    RecordingStatus getStatus() const { return m_status; }
-
     // Getters
     QMediaRecorder* recorder() const;
     QMediaCaptureSession* captureSession() const;
     QString errorString() const;
     qint64 duration() const;
+    RecordingStatus getStatus() const { return m_status; }
 
 signals:
     void durationChanged(qint64 duration);
