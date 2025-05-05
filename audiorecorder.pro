@@ -40,6 +40,9 @@ HEADERS += \
 FORMS += \
     ui/audiorecorder.ui
 
+RESOURCES += \
+    resources.qrc
+
 macx {
     QMAKE_INFO_PLIST = Info.plist.in
 }

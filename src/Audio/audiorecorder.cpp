@@ -35,6 +35,7 @@ static QList<qreal> getBufferLevels(const QAudioBuffer &buffer);
 AudioRecorder::AudioRecorder() : ui(new Ui::AudioRecorder)
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/recorder_icon.ico"));
     changeState(new StoppedState(this));
     m_encodingStrategy = nullptr; // Initialize the strategy pointer
 

@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Qt Multimedia Audio Recorder</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../AudioRecorder_/recorder_icon.ico</normaloff>../../AudioRecorder_/recorder_icon.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
     <item row="4" column="0">
